@@ -1,3 +1,11 @@
+/* Track car state with Kalman filter as in Examples 4.3 of the book
+
+   Simo Sarkka (2013), Bayesian Filtering and Smoothing,
+   Cambridge University Press. 
+
+   http://becs.aalto.fi/~ssarkka/pub/cup_book_online_20131111.pdf
+*/
+
 #include <iostream>
 #include "Eigen/Dense"
 #include "kalman.h"
@@ -19,29 +27,23 @@ void initialize(){
 
 	A = MatrixXd::Identity(4,4);
 	A(0,2) = A(1,3) = dt;
-	//cout<<"A:\n"<<A<<endl;
 
 	H = MatrixXd::Zero(2,4);
 	H(0,0) = H(1,1) = 1;
-	//cout<<"H:\n"<<H<<endl;
 
 	Q = MatrixXd::Zero(4,4);
 	Q(0,0) = Q(1,1) = pow(dt,3)/3;
 	Q(0,2) = Q(1,3) = Q(2,0) = Q(3,1) = pow(dt,2)/2;
 	Q(2,2) = Q(3,3) = dt;
 	Q *= q;
-	//cout<<"Q:\n"<<Q<<endl;
 
 	R = pow(s,2) * MatrixXd::Identity(2,2);
-	//cout<<"R:\n"<<R<<endl;
 
 	x0 = VectorXd::Zero(4);
 	x0(2) = -1;
 	x0(3) = 1;
-	//cout<<"m0:\n"<<m0<<endl;
 
 	P0 = MatrixXd::Identity(4,4);
-	//cout<<"P0:\n"<<P0<<endl;
 
 	kf = KalmanFilter(dt,A,H,Q,R,P0);
 	kf.init(0,x0);
@@ -59,25 +61,28 @@ void simulateData(){
 
 	for(int i=0;i<steps;i++){
 		q = cholQTranspose * MatrixXd::Random(ARows,1);
-		x = A*x + q;
-		y = H*x + s*MatrixXd::Random(2,1);
-		//cout<<x<<endl;
-		//cout<<endl;
-		//cout<<y<<endl;
+		x = A * x + q;
+		y = H * x + s * MatrixXd::Random(2,1);
 		X.col(i) = x;
 		Y.col(i) = y;
 	}
-	//cout<<X<<endl;
-	//cout<<endl;
-	//cout<<Y<<endl;
 }
 
 void estimate(){
 	VectorXd yCurr;
+	MatrixXd xEst = MatrixXd::Zero(X.rows(),X.cols());
+	MatrixXd yDiff;
+
 	for(int i=0;i<steps;i++){
 		yCurr = Y.col(i);
-		cout<<"Inputs: "<<yCurr.transpose()<<" Estimation: "<<kf.update(Y.col(i)).transpose()<<endl;
+		xEst.col(i) = kf.update(Y.col(i));
+
+		cout<<"Inputs: "<<yCurr.transpose()<<"\t\tEstimation: "<<xEst.col(i).transpose()<<endl;
 	}
+
+	yDiff = Y-xEst.block<2,steps>(0,0);
+	cout<<"RMSE on position: "<<sqrt(yDiff.row(0).array().square().mean())<<endl;
+	cout<<"RMSE on velocity: "<<sqrt(yDiff.row(1).array().square().mean())<<endl;
 }
 
 int main() {
