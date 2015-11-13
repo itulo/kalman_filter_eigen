@@ -8,19 +8,26 @@ using Eigen::VectorXd;
 
 int steps = 100;
 
+// Check the implementation of the Kalman Filter throws an exception when it's supposed to
+TEST(KalmanFilter, ThrowsExceptionIfNotInitialized) {
+	KalmanFilter kf = KalmanFilter();
+	
+ 	EXPECT_THROW(
+ 			kf.update(VectorXd::Ones(1)),
+ 			std::runtime_error);
+}
+
 // Single-variable example from http://greg.czerniak.info/guides/kalman1/
-TEST(SingleVariable, One) {
-	double dt = 0.1;
+TEST(KalmanFilter, SingleVariable) {
 	double noisyY;
 
-	KalmanFilter kf = KalmanFilter( dt,
-									VectorXd::Ones(1),
+	KalmanFilter kf = KalmanFilter(	VectorXd::Ones(1),
 									VectorXd::Ones(1),
 									VectorXd::Ones(1)*0.00001,
 									VectorXd::Ones(1)*0.1,
 									VectorXd::Ones(1)
 								  );
-	kf.init(0, VectorXd::Ones(1)*3);
+	kf.init(VectorXd::Ones(1)*3);
 
 	for(int i=0;i<steps-1;i++){
 		noisyY = 1 + ((double) rand() / RAND_MAX) * (i%2==0 ? 1 : -1);

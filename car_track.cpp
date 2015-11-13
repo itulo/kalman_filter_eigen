@@ -17,12 +17,13 @@ using Eigen::VectorXd;
 // global vars
 KalmanFilter kf;
 MatrixXd A,H,Q,x0,X,Y;
-const double dt = 0.1;
 const double s = 0.5;
 const int steps = 100;
 
+/* Initialize Kalman Filter */
 void initialize(){
 	const int q = 1;
+	const double dt = 0.1;
 	MatrixXd R,P0;
 
 	A = MatrixXd::Identity(4,4);
@@ -45,10 +46,11 @@ void initialize(){
 
 	P0 = MatrixXd::Identity(4,4);
 
-	kf = KalmanFilter(dt,A,H,Q,R,P0);
-	kf.init(0,x0);
+	kf = KalmanFilter(A,H,Q,R,P0);
+	kf.init(x0);
 }
 
+/* Simulate position and velocity */
 void simulateData(){
 	int ARows = A.rows();
 	X = MatrixXd::Zero(ARows,steps);
@@ -68,10 +70,11 @@ void simulateData(){
 	}
 }
 
+/* Run the Kalman Filter for estimation */
 void estimate(){
 	VectorXd yCurr;
-	MatrixXd xEst = MatrixXd::Zero(X.rows(),X.cols());
 	MatrixXd yDiff;
+	MatrixXd xEst = MatrixXd::Zero(X.rows(),X.cols());
 
 	for(int i=0;i<steps;i++){
 		yCurr = Y.col(i);
@@ -89,4 +92,6 @@ int main() {
 	initialize();
 	simulateData();
 	estimate();
+
+	return 0;
 }

@@ -18,7 +18,6 @@ public:
   *   P - Estimate error covariance
   */
   KalmanFilter(
-      double dt,
       const MatrixXd& A,
       const MatrixXd& H,
       const MatrixXd& Q,
@@ -39,7 +38,7 @@ public:
   /**
   * Initialize the filter with a guess for initial states.
   */
-  void init(double t0, const VectorXd& x0);
+  void init(const VectorXd& x0);
 
   /**
   * Update the estimated state based on measured values. The
@@ -51,13 +50,12 @@ public:
   * Update the estimated state based on measured values,
   * using the given time step and dynamics matrix.
   */
-  VectorXd update(const VectorXd& y, double dt, const MatrixXd A);
+  VectorXd update(const VectorXd& y, const MatrixXd A);
 
   /**
   * Return the current state and time.
   */
   VectorXd state() { return x_hat; };
-  double time() { return t; };
 
 private:
 
@@ -66,12 +64,6 @@ private:
 
   // System dimensions
   int m, n;
-
-  // Initial and current time
-  double t0, t;
-
-  // Discrete time step
-  double dt;
 
   // Is the filter initialized?
   bool initialized;
