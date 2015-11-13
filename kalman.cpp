@@ -45,8 +45,3 @@ VectorXd KalmanFilter::update(const VectorXd& y) {
 
   return x_hat;
 }
-
-VectorXd KalmanFilter::update(const VectorXd& y, const MatrixXd A) {
-  this->A = A;
-  return update(y);
-}

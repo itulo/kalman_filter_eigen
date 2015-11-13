@@ -47,12 +47,6 @@ public:
   VectorXd update(const VectorXd& y);
 
   /**
-  * Update the estimated state based on measured values,
-  * using the given time step and dynamics matrix.
-  */
-  VectorXd update(const VectorXd& y, const MatrixXd A);
-
-  /**
   * Return the current state and time.
   */
   VectorXd state() { return x_hat; };
