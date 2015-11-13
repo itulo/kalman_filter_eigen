@@ -7,6 +7,4 @@ car:
 
 tests:
 	$(CXX) -I. -lgtest kalman.cpp testmain.cpp tests.cpp -o testmain
-
-prova:
-	$(CXX) prova.cpp -o prova
+	
